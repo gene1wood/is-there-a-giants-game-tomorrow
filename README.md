@@ -1,0 +1,3 @@
+There's nothing like stepping out of your office, ready to walk to the ferry, bus or BART to see in front of you thousands of orange and black bespeckled sports fans. If only you'd left earlier. You could turn around and go back to the office and wait it out. You could just brave it.
+
+This tool checks if tomorrow is a weekday and if there's a Giants home game at AT&T park which ends between 3pm and 6pm. If so it sends an email.

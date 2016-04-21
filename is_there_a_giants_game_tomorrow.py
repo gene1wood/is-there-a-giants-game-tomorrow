@@ -127,8 +127,6 @@ def get_conflicting_games():
 
     reader = csv.DictReader(CSV_DATA.split("\n"))
 
-    logging.debug("reader is %s" % [x for x in reader])
-
     games_that_conflict_with_transit = []
 
     for row in reader:

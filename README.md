@@ -18,4 +18,4 @@ Other resources which are similar but do different things :
 If you would like to receive an email from a deployed instance of this tool,
 join this mailing list :
 
-https://groups.google.com/forum/#!forum/is-there-a-giants-home-game-tomorrow
+https://groups.google.com/g/is-there-a-giants-home-game-tomorrow

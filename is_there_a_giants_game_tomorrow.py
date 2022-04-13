@@ -3,8 +3,8 @@
 import csv
 from datetime import time, datetime, timedelta
 import logging
-import json
-import pyzmail
+import smtplib
+from email.message import EmailMessage
 import sys
 
 START_DATE = "START DATE"
@@ -142,6 +142,7 @@ def get_conflicting_games():
             games_that_conflict_with_transit.append(end)
     return games_that_conflict_with_transit
 
+
 def is_there_a_conflicting_game_tomorrow(games):
     for game in games:
         # Is the game tomorrow?
@@ -149,19 +150,19 @@ def is_there_a_conflicting_game_tomorrow(games):
             return game
     return False
 
+
 def alert(game):
     text = "There's a Giants game tomorrow at AT&T park. The game should end around %s. Plan accordingly. Game end time : %s" % (game.strftime("%I:%M %p"), game.strftime("%c"))
     logging.debug("Emailing : %s" % text)
-    compose_args = {'sender': ("Is there a Giants game tomorrow", SENDER),
-                    'recipients': [RECIPIENT],
-                    'subject': "There's a Giants game tomorrow",
-                    'default_charset': 'iso-8859-1',
-                    'text': (text, 'us-ascii')}
-    payload, mail_from, rcpt_to, msg_id=pyzmail.compose_mail(**compose_args)
-    return pyzmail.send_mail(payload, 
-                             mail_from, 
-                             rcpt_to, 
-                             'localhost')
+    msg = EmailMessage()
+    msg.set_content(text)
+    msg['Subject'] = f"There's a Giants game tomorrow"
+    msg['From'] = SENDER
+    msg['To'] = RECIPIENT
+    s = smtplib.SMTP('localhost')
+    s.send_message(msg)
+    s.quit()
+
 
 def main():
     logging.basicConfig(level=LOGLEVEL)
@@ -171,6 +172,7 @@ def main():
     if game:
         logging.debug("Conflicting game tomorrow %s" % game.strftime("%c"))
         alert(game)
+
 
 if __name__ == "__main__":
     main()

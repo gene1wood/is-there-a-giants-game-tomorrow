@@ -10,110 +10,99 @@ import sys
 START_DATE = "START DATE"
 START_TIME = "START TIME"
 
-# http://mlb.mlb.com/soa/ical/schedule.csv?home_team_id=137&season=2015
-# http://mlb.mlb.com/ticketing-client/csv/EventTicketPromotionPrice.tiksrv?team_id=137&home_team_id=137&display_in=singlegame&ticket_category=Tickets&site_section=Default&sub_category=Default&leave_empty_games=true&event_type=T&event_type=Y
-# http://www.ticketing-client.com/ticketing-client/csv/EventTicketPromotionPrice.tiksrv?team_id=137&home_team_id=137&display_in=singlegame&ticket_category=Tickets&site_section=Default&sub_category=Default&leave_empty_games=true&event_type=T
+# https://www.mlb.com/giants/schedule/downloadable-schedule
+# https://www.ticketing-client.com/ticketing-client/csv/GameTicketPromotionPrice.tiksrv?team_id=137&home_team_id=137&display_in=singlegame&ticket_category=Tickets&site_section=Default&sub_category=Default&leave_empty_games=true&event_type=T&year=2022&begin_date=20220201
 CSV_DATA = '''START DATE,START TIME,START TIME ET,SUBJECT,LOCATION,DESCRIPTION,END DATE,END DATE ET,END TIME,END TIME ET,REMINDER OFF,REMINDER ON,REMINDER DATE,REMINDER TIME,REMINDER TIME ET,SHOWTIMEAS FREE,SHOWTIMEAS BUSY
-02/24/19,12:05 PM,03:05 PM,Cubs at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",02/24/19,02/24/19,03:05 PM,06:05 PM,FALSE,TRUE,02/24/19,11:05 AM,02:05 PM,FREE,BUSY
-02/25/19,12:05 PM,03:05 PM,White Sox at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: MLB.com",02/25/19,02/25/19,03:05 PM,06:05 PM,FALSE,TRUE,02/25/19,11:05 AM,02:05 PM,FREE,BUSY
-02/27/19,12:05 PM,03:05 PM,Royals at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: MLB.com",02/27/19,02/27/19,03:05 PM,06:05 PM,FALSE,TRUE,02/27/19,11:05 AM,02:05 PM,FREE,BUSY
-03/01/19,06:05 PM,09:05 PM,Reds at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBC Bay Area- MLBN (out-of-market only) ----- Local Radio: MLB.com",03/01/19,03/02/19,09:05 PM,12:05 AM,FALSE,TRUE,03/01/19,05:05 PM,08:05 PM,FREE,BUSY
-03/02/19,12:05 PM,03:05 PM,Rangers at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/02/19,03/02/19,03:05 PM,06:05 PM,FALSE,TRUE,03/02/19,11:05 AM,02:05 PM,FREE,BUSY
-03/04/19,12:05 PM,03:05 PM,Dodgers at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: MLB.com",03/04/19,03/04/19,03:05 PM,06:05 PM,FALSE,TRUE,03/04/19,11:05 AM,02:05 PM,FREE,BUSY
-03/07/19,06:05 PM,09:05 PM,Athletics at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBCS BA- MLBN (out-of-market only) ----- Local Radio: KNBR 680",03/07/19,03/08/19,09:05 PM,12:05 AM,FALSE,TRUE,03/07/19,05:05 PM,08:05 PM,FREE,BUSY
-03/09/19,12:05 PM,03:05 PM,Cubs at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/09/19,03/09/19,03:05 PM,06:05 PM,FALSE,TRUE,03/09/19,11:05 AM,02:05 PM,FREE,BUSY
-03/10/19,01:05 PM,04:05 PM,Rangers at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/10/19,03/10/19,04:05 PM,07:05 PM,FALSE,TRUE,03/10/19,12:05 PM,03:05 PM,FREE,BUSY
-03/12/19,07:05 PM,10:05 PM,Brewers at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBCS BA ----- Local Radio: MLB.com",03/12/19,03/13/19,10:05 PM,01:05 AM,FALSE,TRUE,03/12/19,06:05 PM,09:05 PM,FREE,BUSY
-03/15/19,01:05 PM,04:05 PM,Angels at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: MLB.com",03/15/19,03/15/19,04:05 PM,07:05 PM,FALSE,TRUE,03/15/19,12:05 PM,03:05 PM,FREE,BUSY
-03/16/19,01:05 PM,04:05 PM,Padres at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/16/19,03/16/19,04:05 PM,07:05 PM,FALSE,TRUE,03/16/19,12:05 PM,03:05 PM,FREE,BUSY
-03/17/19,01:05 PM,04:05 PM,Royals at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/17/19,03/17/19,04:05 PM,07:05 PM,FALSE,TRUE,03/17/19,12:05 PM,03:05 PM,FREE,BUSY
-03/20/19,07:05 PM,10:05 PM,Indians at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBCS BA ----- Local Radio: KNBR 680",03/20/19,03/21/19,10:05 PM,01:05 AM,FALSE,TRUE,03/20/19,06:05 PM,09:05 PM,FREE,BUSY
-03/22/19,07:05 PM,10:05 PM,Rockies at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680",03/22/19,03/23/19,10:05 PM,01:05 AM,FALSE,TRUE,03/22/19,06:05 PM,09:05 PM,FREE,BUSY
-03/23/19,01:05 PM,04:05 PM,D-backs at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/23/19,03/23/19,04:05 PM,07:05 PM,FALSE,TRUE,03/23/19,12:05 PM,03:05 PM,FREE,BUSY
-03/25/19,06:45 PM,09:45 PM,Athletics at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",03/25/19,03/26/19,09:45 PM,12:45 AM,FALSE,TRUE,03/25/19,05:45 PM,08:45 PM,FREE,BUSY
-03/26/19,06:45 PM,09:45 PM,Athletics at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",03/26/19,03/27/19,09:45 PM,12:45 AM,FALSE,TRUE,03/26/19,05:45 PM,08:45 PM,FREE,BUSY
-04/05/19,01:35 PM,04:35 PM,Rays at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/05/19,04/05/19,04:35 PM,07:35 PM,FALSE,TRUE,04/05/19,12:35 PM,03:35 PM,FREE,BUSY
-04/06/19,01:05 PM,04:05 PM,Rays at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/06/19,04/06/19,04:05 PM,07:05 PM,FALSE,TRUE,04/06/19,12:05 PM,03:05 PM,FREE,BUSY
-04/07/19,01:05 PM,04:05 PM,Rays at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/07/19,04/07/19,04:05 PM,07:05 PM,FALSE,TRUE,04/07/19,12:05 PM,03:05 PM,FREE,BUSY
-04/08/19,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/08/19,04/09/19,09:45 PM,12:45 AM,FALSE,TRUE,04/08/19,05:45 PM,08:45 PM,FREE,BUSY
-04/09/19,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA+ ----- Local Radio: KNBR 680- KXZM 93.7",04/09/19,04/10/19,09:45 PM,12:45 AM,FALSE,TRUE,04/09/19,05:45 PM,08:45 PM,FREE,BUSY
-04/10/19,12:45 PM,03:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/10/19,04/10/19,03:45 PM,06:45 PM,FALSE,TRUE,04/10/19,11:45 AM,02:45 PM,FREE,BUSY
-04/11/19,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/11/19,04/12/19,09:45 PM,12:45 AM,FALSE,TRUE,04/11/19,05:45 PM,08:45 PM,FREE,BUSY
-04/12/19,07:15 PM,10:15 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/12/19,04/13/19,10:15 PM,01:15 AM,FALSE,TRUE,04/12/19,06:15 PM,09:15 PM,FREE,BUSY
-04/13/19,01:05 PM,04:05 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- FS1 ----- Local Radio: KNBR 680- KXZM 93.7",04/13/19,04/13/19,04:05 PM,07:05 PM,FALSE,TRUE,04/13/19,12:05 PM,03:05 PM,FREE,BUSY
-04/14/19,01:05 PM,04:05 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/14/19,04/14/19,04:05 PM,07:05 PM,FALSE,TRUE,04/14/19,12:05 PM,03:05 PM,FREE,BUSY
-04/26/19,07:15 PM,10:15 PM,Yankees at Giants,Oracle Park - San Francisco,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680- KXZM 93.7",04/26/19,04/27/19,10:15 PM,01:15 AM,FALSE,TRUE,04/26/19,06:15 PM,09:15 PM,FREE,BUSY
-04/27/19,01:05 PM,04:05 PM,Yankees at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/27/19,04/27/19,04:05 PM,07:05 PM,FALSE,TRUE,04/27/19,12:05 PM,03:05 PM,FREE,BUSY
-04/28/19,01:05 PM,04:05 PM,Yankees at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/28/19,04/28/19,04:05 PM,07:05 PM,FALSE,TRUE,04/28/19,12:05 PM,03:05 PM,FREE,BUSY
-04/29/19,06:45 PM,09:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/29/19,04/30/19,09:45 PM,12:45 AM,FALSE,TRUE,04/29/19,05:45 PM,08:45 PM,FREE,BUSY
-04/30/19,06:45 PM,09:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",04/30/19,05/01/19,09:45 PM,12:45 AM,FALSE,TRUE,04/30/19,05:45 PM,08:45 PM,FREE,BUSY
-05/01/19,06:45 PM,09:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/01/19,05/02/19,09:45 PM,12:45 AM,FALSE,TRUE,05/01/19,05:45 PM,08:45 PM,FREE,BUSY
-05/10/19,07:15 PM,10:15 PM,Reds at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/10/19,05/11/19,10:15 PM,01:15 AM,FALSE,TRUE,05/10/19,06:15 PM,09:15 PM,FREE,BUSY
-05/11/19,06:05 PM,09:05 PM,Reds at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/11/19,05/12/19,09:05 PM,12:05 AM,FALSE,TRUE,05/11/19,05:05 PM,08:05 PM,FREE,BUSY
-05/12/19,01:05 PM,04:05 PM,Reds at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/12/19,05/12/19,04:05 PM,07:05 PM,FALSE,TRUE,05/12/19,12:05 PM,03:05 PM,FREE,BUSY
-05/14/19,06:45 PM,09:45 PM,Blue Jays at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/14/19,05/15/19,09:45 PM,12:45 AM,FALSE,TRUE,05/14/19,05:45 PM,08:45 PM,FREE,BUSY
-05/15/19,12:45 PM,03:45 PM,Blue Jays at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/15/19,05/15/19,03:45 PM,06:45 PM,FALSE,TRUE,05/15/19,11:45 AM,02:45 PM,FREE,BUSY
-05/20/19,06:45 PM,09:45 PM,Braves at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/20/19,05/21/19,09:45 PM,12:45 AM,FALSE,TRUE,05/20/19,05:45 PM,08:45 PM,FREE,BUSY
-05/21/19,06:45 PM,09:45 PM,Braves at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- ESPN ----- Local Radio: KNBR 680- KXZM 93.7",05/21/19,05/22/19,09:45 PM,12:45 AM,FALSE,TRUE,05/21/19,05:45 PM,08:45 PM,FREE,BUSY
-05/22/19,06:45 PM,09:45 PM,Braves at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/22/19,05/23/19,09:45 PM,12:45 AM,FALSE,TRUE,05/22/19,05:45 PM,08:45 PM,FREE,BUSY
-05/23/19,12:45 PM,03:45 PM,Braves at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/23/19,05/23/19,03:45 PM,06:45 PM,FALSE,TRUE,05/23/19,11:45 AM,02:45 PM,FREE,BUSY
-05/24/19,07:15 PM,10:15 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680- KXZM 93.7",05/24/19,05/25/19,10:15 PM,01:15 AM,FALSE,TRUE,05/24/19,06:15 PM,09:15 PM,FREE,BUSY
-05/25/19,01:05 PM,04:05 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- FS1 ----- Local Radio: KNBR 680- KXZM 93.7",05/25/19,05/25/19,04:05 PM,07:05 PM,FALSE,TRUE,05/25/19,12:05 PM,03:05 PM,FREE,BUSY
-05/26/19,01:05 PM,04:05 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",05/26/19,05/26/19,04:05 PM,07:05 PM,FALSE,TRUE,05/26/19,12:05 PM,03:05 PM,FREE,BUSY
-06/07/19,07:15 PM,10:15 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680- KXZM 93.7",06/07/19,06/08/19,10:15 PM,01:15 AM,FALSE,TRUE,06/07/19,06:15 PM,09:15 PM,FREE,BUSY
-06/08/19,04:15 PM,07:15 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: FOX ----- Local Radio: KNBR 680- KXZM 93.7",06/08/19,06/08/19,07:15 PM,10:15 PM,FALSE,TRUE,06/08/19,03:15 PM,06:15 PM,FREE,BUSY
-06/09/19,01:05 PM,04:05 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/09/19,06/09/19,04:05 PM,07:05 PM,FALSE,TRUE,06/09/19,12:05 PM,03:05 PM,FREE,BUSY
-06/11/19,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/11/19,06/12/19,09:45 PM,12:45 AM,FALSE,TRUE,06/11/19,05:45 PM,08:45 PM,FREE,BUSY
-06/12/19,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/12/19,06/13/19,09:45 PM,12:45 AM,FALSE,TRUE,06/12/19,05:45 PM,08:45 PM,FREE,BUSY
-06/14/19,07:15 PM,10:15 PM,Brewers at Giants,Oracle Park - San Francisco,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680- KXZM 93.7",06/14/19,06/15/19,10:15 PM,01:15 AM,FALSE,TRUE,06/14/19,06:15 PM,09:15 PM,FREE,BUSY
-06/15/19,01:05 PM,04:05 PM,Brewers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/15/19,06/15/19,04:05 PM,07:05 PM,FALSE,TRUE,06/15/19,12:05 PM,03:05 PM,FREE,BUSY
-06/16/19,01:05 PM,04:05 PM,Brewers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/16/19,06/16/19,04:05 PM,07:05 PM,FALSE,TRUE,06/16/19,12:05 PM,03:05 PM,FREE,BUSY
-06/24/19,07:05 PM,10:05 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/24/19,06/25/19,10:05 PM,01:05 AM,FALSE,TRUE,06/24/19,06:05 PM,09:05 PM,FREE,BUSY
-06/25/19,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- ESPN ----- Local Radio: KNBR 680- KXZM 93.7",06/25/19,06/26/19,09:45 PM,12:45 AM,FALSE,TRUE,06/25/19,05:45 PM,08:45 PM,FREE,BUSY
-06/26/19,12:45 PM,03:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/26/19,06/26/19,03:45 PM,06:45 PM,FALSE,TRUE,06/26/19,11:45 AM,02:45 PM,FREE,BUSY
-06/27/19,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/27/19,06/28/19,09:45 PM,12:45 AM,FALSE,TRUE,06/27/19,05:45 PM,08:45 PM,FREE,BUSY
-06/28/19,07:15 PM,10:15 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680- KXZM 93.7",06/28/19,06/29/19,10:15 PM,01:15 AM,FALSE,TRUE,06/28/19,06:15 PM,09:15 PM,FREE,BUSY
-06/29/19,07:05 PM,10:05 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/29/19,06/30/19,10:05 PM,01:05 AM,FALSE,TRUE,06/29/19,06:05 PM,09:05 PM,FREE,BUSY
-06/30/19,01:05 PM,04:05 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",06/30/19,06/30/19,04:05 PM,07:05 PM,FALSE,TRUE,06/30/19,12:05 PM,03:05 PM,FREE,BUSY
-07/05/19,07:15 PM,10:15 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/05/19,07/06/19,10:15 PM,01:15 AM,FALSE,TRUE,07/05/19,06:15 PM,09:15 PM,FREE,BUSY
-07/06/19,07:05 PM,10:05 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/06/19,07/07/19,10:05 PM,01:05 AM,FALSE,TRUE,07/06/19,06:05 PM,09:05 PM,FREE,BUSY
-07/07/19,01:05 PM,04:05 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/07/19,07/07/19,04:05 PM,07:05 PM,FALSE,TRUE,07/07/19,12:05 PM,03:05 PM,FREE,BUSY
-07/09/19,,,NL All-Stars at AL All-Stars - Time TBD,Progressive Field - Cleveland,"",07/09/19,07/09/19,,,FALSE,TRUE,07/09/19,,,FREE,BUSY
-07/18/19,06:45 PM,09:45 PM,Mets at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/18/19,07/19/19,09:45 PM,12:45 AM,FALSE,TRUE,07/18/19,05:45 PM,08:45 PM,FREE,BUSY
-07/19/19,07:15 PM,10:15 PM,Mets at Giants,Oracle Park - San Francisco,"Local TV: NBC Bay Area ----- Local Radio: KNBR 680- KXZM 93.7",07/19/19,07/20/19,10:15 PM,01:15 AM,FALSE,TRUE,07/19/19,06:15 PM,09:15 PM,FREE,BUSY
-07/20/19,01:05 PM,04:05 PM,Mets at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- FS1 ----- Local Radio: KNBR 680- KXZM 93.7",07/20/19,07/20/19,04:05 PM,07:05 PM,FALSE,TRUE,07/20/19,12:05 PM,03:05 PM,FREE,BUSY
-07/21/19,01:05 PM,04:05 PM,Mets at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/21/19,07/21/19,04:05 PM,07:05 PM,FALSE,TRUE,07/21/19,12:05 PM,03:05 PM,FREE,BUSY
-07/22/19,06:45 PM,09:45 PM,Cubs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/22/19,07/23/19,09:45 PM,12:45 AM,FALSE,TRUE,07/22/19,05:45 PM,08:45 PM,FREE,BUSY
-07/23/19,06:45 PM,09:45 PM,Cubs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/23/19,07/24/19,09:45 PM,12:45 AM,FALSE,TRUE,07/23/19,05:45 PM,08:45 PM,FREE,BUSY
-07/24/19,12:45 PM,03:45 PM,Cubs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",07/24/19,07/24/19,03:45 PM,06:45 PM,FALSE,TRUE,07/24/19,11:45 AM,02:45 PM,FREE,BUSY
-08/05/19,06:45 PM,09:45 PM,Nationals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/05/19,08/06/19,09:45 PM,12:45 AM,FALSE,TRUE,08/05/19,05:45 PM,08:45 PM,FREE,BUSY
-08/06/19,06:45 PM,09:45 PM,Nationals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/06/19,08/07/19,09:45 PM,12:45 AM,FALSE,TRUE,08/06/19,05:45 PM,08:45 PM,FREE,BUSY
-08/07/19,12:45 PM,03:45 PM,Nationals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/07/19,08/07/19,03:45 PM,06:45 PM,FALSE,TRUE,08/07/19,11:45 AM,02:45 PM,FREE,BUSY
-08/08/19,06:45 PM,09:45 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/08/19,08/09/19,09:45 PM,12:45 AM,FALSE,TRUE,08/08/19,05:45 PM,08:45 PM,FREE,BUSY
-08/09/19,07:15 PM,10:15 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/09/19,08/10/19,10:15 PM,01:15 AM,FALSE,TRUE,08/09/19,06:15 PM,09:15 PM,FREE,BUSY
-08/10/19,01:05 PM,04:05 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- FS1 ----- Local Radio: KNBR 680- KXZM 93.7",08/10/19,08/10/19,04:05 PM,07:05 PM,FALSE,TRUE,08/10/19,12:05 PM,03:05 PM,FREE,BUSY
-08/11/19,01:05 PM,04:05 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/11/19,08/11/19,04:05 PM,07:05 PM,FALSE,TRUE,08/11/19,12:05 PM,03:05 PM,FREE,BUSY
-08/13/19,06:45 PM,09:45 PM,Athletics at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/13/19,08/14/19,09:45 PM,12:45 AM,FALSE,TRUE,08/13/19,05:45 PM,08:45 PM,FREE,BUSY
-08/14/19,12:45 PM,03:45 PM,Athletics at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/14/19,08/14/19,03:45 PM,06:45 PM,FALSE,TRUE,08/14/19,11:45 AM,02:45 PM,FREE,BUSY
-08/26/19,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/26/19,08/27/19,09:45 PM,12:45 AM,FALSE,TRUE,08/26/19,05:45 PM,08:45 PM,FREE,BUSY
-08/27/19,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/27/19,08/28/19,09:45 PM,12:45 AM,FALSE,TRUE,08/27/19,05:45 PM,08:45 PM,FREE,BUSY
-08/29/19,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/29/19,08/30/19,09:45 PM,12:45 AM,FALSE,TRUE,08/29/19,05:45 PM,08:45 PM,FREE,BUSY
-08/30/19,07:15 PM,10:15 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/30/19,08/31/19,10:15 PM,01:15 AM,FALSE,TRUE,08/30/19,06:15 PM,09:15 PM,FREE,BUSY
-08/31/19,06:05 PM,09:05 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",08/31/19,09/01/19,09:05 PM,12:05 AM,FALSE,TRUE,08/31/19,05:05 PM,08:05 PM,FREE,BUSY
-09/01/19,01:05 PM,04:05 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/01/19,09/01/19,04:05 PM,07:05 PM,FALSE,TRUE,09/01/19,12:05 PM,03:05 PM,FREE,BUSY
-09/09/19,06:45 PM,09:45 PM,Pirates at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/09/19,09/10/19,09:45 PM,12:45 AM,FALSE,TRUE,09/09/19,05:45 PM,08:45 PM,FREE,BUSY
-09/10/19,06:45 PM,09:45 PM,Pirates at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/10/19,09/11/19,09:45 PM,12:45 AM,FALSE,TRUE,09/10/19,05:45 PM,08:45 PM,FREE,BUSY
-09/11/19,06:45 PM,09:45 PM,Pirates at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/11/19,09/12/19,09:45 PM,12:45 AM,FALSE,TRUE,09/11/19,05:45 PM,08:45 PM,FREE,BUSY
-09/12/19,12:45 PM,03:45 PM,Pirates at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/12/19,09/12/19,03:45 PM,06:45 PM,FALSE,TRUE,09/12/19,11:45 AM,02:45 PM,FREE,BUSY
-09/13/19,07:15 PM,10:15 PM,Marlins at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/13/19,09/14/19,10:15 PM,01:15 AM,FALSE,TRUE,09/13/19,06:15 PM,09:15 PM,FREE,BUSY
-09/14/19,06:05 PM,09:05 PM,Marlins at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/14/19,09/15/19,09:05 PM,12:05 AM,FALSE,TRUE,09/14/19,05:05 PM,08:05 PM,FREE,BUSY
-09/15/19,01:05 PM,04:05 PM,Marlins at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/15/19,09/15/19,04:05 PM,07:05 PM,FALSE,TRUE,09/15/19,12:05 PM,03:05 PM,FREE,BUSY
-09/24/19,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/24/19,09/25/19,09:45 PM,12:45 AM,FALSE,TRUE,09/24/19,05:45 PM,08:45 PM,FREE,BUSY
-09/25/19,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/25/19,09/26/19,09:45 PM,12:45 AM,FALSE,TRUE,09/25/19,05:45 PM,08:45 PM,FREE,BUSY
-09/26/19,12:45 PM,03:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/26/19,09/26/19,03:45 PM,06:45 PM,FALSE,TRUE,09/26/19,11:45 AM,02:45 PM,FREE,BUSY
-09/27/19,07:15 PM,10:15 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/27/19,09/28/19,10:15 PM,01:15 AM,FALSE,TRUE,09/27/19,06:15 PM,09:15 PM,FREE,BUSY
-09/28/19,01:05 PM,04:05 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/28/19,09/28/19,04:05 PM,07:05 PM,FALSE,TRUE,09/28/19,12:05 PM,03:05 PM,FREE,BUSY
-09/29/19,12:05 PM,03:05 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- KXZM 93.7",09/29/19,09/29/19,03:05 PM,06:05 PM,FALSE,TRUE,09/29/19,11:05 AM,02:05 PM,FREE,BUSY
+03/18/22,07:05 PM,10:05 PM,Cubs at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBCS BA ----- Local Radio: KNBR 680",03/18/22,03/19/22,10:05 PM,01:05 AM,FALSE,TRUE,03/18/22,06:05 PM,09:05 PM,FREE,BUSY
+03/21/22,07:05 PM,10:05 PM,Brewers at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBCS BA ----- Local Radio: KNBR 680",03/21/22,03/22/22,10:05 PM,01:05 AM,FALSE,TRUE,03/21/22,06:05 PM,09:05 PM,FREE,BUSY
+03/23/22,01:05 PM,04:05 PM,D-backs at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: MLB.com",03/23/22,03/23/22,04:05 PM,07:05 PM,FALSE,TRUE,03/23/22,12:05 PM,03:05 PM,FREE,BUSY
+03/25/22,01:05 PM,04:05 PM,Guardians at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",03/25/22,03/25/22,04:05 PM,07:05 PM,FALSE,TRUE,03/25/22,12:05 PM,03:05 PM,FREE,BUSY
+03/26/22,01:05 PM,04:05 PM,Reds at Giants,Scottsdale Stadium - Scottsdale,"Local TV: NBCS BA",03/26/22,03/26/22,04:05 PM,07:05 PM,FALSE,TRUE,03/26/22,12:05 PM,03:05 PM,FREE,BUSY
+03/29/22,01:05 PM,04:05 PM,Padres at Giants,Scottsdale Stadium - Scottsdale,"",03/29/22,03/29/22,04:05 PM,07:05 PM,FALSE,TRUE,03/29/22,12:05 PM,03:05 PM,FREE,BUSY
+03/31/22,01:05 PM,04:05 PM,Rockies at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: MLB.com",03/31/22,03/31/22,04:05 PM,07:05 PM,FALSE,TRUE,03/31/22,12:05 PM,03:05 PM,FREE,BUSY
+04/01/22,12:05 PM,03:05 PM,Rangers at Giants,Scottsdale Stadium - Scottsdale,"Local Radio: KNBR 680",04/01/22,04/01/22,03:05 PM,06:05 PM,FALSE,TRUE,04/01/22,11:05 AM,02:05 PM,FREE,BUSY
+04/05/22,01:05 PM,04:05 PM,Athletics at Giants,Scottsdale Stadium - Scottsdale,"",04/05/22,04/05/22,04:05 PM,07:05 PM,FALSE,TRUE,04/05/22,12:05 PM,03:05 PM,FREE,BUSY
+04/08/22,01:35 PM,04:35 PM,Marlins at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",04/08/22,04/08/22,04:35 PM,07:35 PM,FALSE,TRUE,04/08/22,12:35 PM,03:35 PM,FREE,BUSY
+04/09/22,01:05 PM,04:05 PM,Marlins at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",04/09/22,04/09/22,04:05 PM,07:05 PM,FALSE,TRUE,04/09/22,12:05 PM,03:05 PM,FREE,BUSY
+04/10/22,01:05 PM,04:05 PM,Marlins at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",04/10/22,04/10/22,04:05 PM,07:05 PM,FALSE,TRUE,04/10/22,12:05 PM,03:05 PM,FREE,BUSY
+04/11/22,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",04/11/22,04/12/22,09:45 PM,12:45 AM,FALSE,TRUE,04/11/22,05:45 PM,08:45 PM,FREE,BUSY
+04/12/22,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: TBS (out-of-market only) ----- Local Radio: 1510 AM - KSFN",04/12/22,04/13/22,09:45 PM,12:45 AM,FALSE,TRUE,04/12/22,05:45 PM,08:45 PM,FREE,BUSY
+04/13/22,12:45 PM,03:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA- MLBN (out-of-market only) ----- Local Radio: KNBR 680",04/13/22,04/13/22,03:45 PM,06:45 PM,FALSE,TRUE,04/13/22,11:45 AM,02:45 PM,FREE,BUSY
+04/26/22,06:45 PM,09:45 PM,Athletics at Giants,Oracle Park - San Francisco,"Local TV: MLBN (out-of-market only)",04/26/22,04/27/22,09:45 PM,12:45 AM,FALSE,TRUE,04/26/22,05:45 PM,08:45 PM,FREE,BUSY
+04/27/22,06:45 PM,09:45 PM,Athletics at Giants,Oracle Park - San Francisco,"",04/27/22,04/28/22,09:45 PM,12:45 AM,FALSE,TRUE,04/27/22,05:45 PM,08:45 PM,FREE,BUSY
+04/29/22,07:15 PM,10:15 PM,Nationals at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",04/29/22,04/30/22,10:15 PM,01:15 AM,FALSE,TRUE,04/29/22,06:15 PM,09:15 PM,FREE,BUSY
+04/30/22,01:05 PM,04:05 PM,Nationals at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",04/30/22,04/30/22,04:05 PM,07:05 PM,FALSE,TRUE,04/30/22,12:05 PM,03:05 PM,FREE,BUSY
+05/01/22,01:05 PM,04:05 PM,Nationals at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",05/01/22,05/01/22,04:05 PM,07:05 PM,FALSE,TRUE,05/01/22,12:05 PM,03:05 PM,FREE,BUSY
+05/05/22,06:45 PM,09:45 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/05/22,05/06/22,09:45 PM,12:45 AM,FALSE,TRUE,05/05/22,05:45 PM,08:45 PM,FREE,BUSY
+05/06/22,07:15 PM,10:15 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/06/22,05/07/22,10:15 PM,01:15 AM,FALSE,TRUE,05/06/22,06:15 PM,09:15 PM,FREE,BUSY
+05/07/22,04:15 PM,07:15 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",05/07/22,05/07/22,07:15 PM,10:15 PM,FALSE,TRUE,05/07/22,03:15 PM,06:15 PM,FREE,BUSY
+05/08/22,01:05 PM,04:05 PM,Cardinals at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/08/22,05/08/22,04:05 PM,07:05 PM,FALSE,TRUE,05/08/22,12:05 PM,03:05 PM,FREE,BUSY
+05/09/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",05/09/22,05/10/22,09:45 PM,12:45 AM,FALSE,TRUE,05/09/22,05:45 PM,08:45 PM,FREE,BUSY
+05/10/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",05/10/22,05/11/22,09:45 PM,12:45 AM,FALSE,TRUE,05/10/22,05:45 PM,08:45 PM,FREE,BUSY
+05/11/22,12:45 PM,03:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",05/11/22,05/11/22,03:45 PM,06:45 PM,FALSE,TRUE,05/11/22,11:45 AM,02:45 PM,FREE,BUSY
+05/20/22,07:15 PM,10:15 PM,Padres at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/20/22,05/21/22,10:15 PM,01:15 AM,FALSE,TRUE,05/20/22,06:15 PM,09:15 PM,FREE,BUSY
+05/21/22,01:05 PM,04:05 PM,Padres at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",05/21/22,05/21/22,04:05 PM,07:05 PM,FALSE,TRUE,05/21/22,12:05 PM,03:05 PM,FREE,BUSY
+05/22/22,01:05 PM,04:05 PM,Padres at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/22/22,05/22/22,04:05 PM,07:05 PM,FALSE,TRUE,05/22/22,12:05 PM,03:05 PM,FREE,BUSY
+05/23/22,06:45 PM,09:45 PM,Mets at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/23/22,05/24/22,09:45 PM,12:45 AM,FALSE,TRUE,05/23/22,05:45 PM,08:45 PM,FREE,BUSY
+05/24/22,06:45 PM,09:45 PM,Mets at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/24/22,05/25/22,09:45 PM,12:45 AM,FALSE,TRUE,05/24/22,05:45 PM,08:45 PM,FREE,BUSY
+05/25/22,12:45 PM,03:45 PM,Mets at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",05/25/22,05/25/22,03:45 PM,06:45 PM,FALSE,TRUE,05/25/22,11:45 AM,02:45 PM,FREE,BUSY
+06/07/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/07/22,06/08/22,09:45 PM,12:45 AM,FALSE,TRUE,06/07/22,05:45 PM,08:45 PM,FREE,BUSY
+06/08/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/08/22,06/09/22,09:45 PM,12:45 AM,FALSE,TRUE,06/08/22,05:45 PM,08:45 PM,FREE,BUSY
+06/09/22,12:45 PM,03:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/09/22,06/09/22,03:45 PM,06:45 PM,FALSE,TRUE,06/09/22,11:45 AM,02:45 PM,FREE,BUSY
+06/10/22,07:15 PM,10:15 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",06/10/22,06/11/22,10:15 PM,01:15 AM,FALSE,TRUE,06/10/22,06:15 PM,09:15 PM,FREE,BUSY
+06/11/22,04:15 PM,07:15 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",06/11/22,06/11/22,07:15 PM,10:15 PM,FALSE,TRUE,06/11/22,03:15 PM,06:15 PM,FREE,BUSY
+06/12/22,01:05 PM,04:05 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",06/12/22,06/12/22,04:05 PM,07:05 PM,FALSE,TRUE,06/12/22,12:05 PM,03:05 PM,FREE,BUSY
+06/13/22,06:45 PM,09:45 PM,Royals at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/13/22,06/14/22,09:45 PM,12:45 AM,FALSE,TRUE,06/13/22,05:45 PM,08:45 PM,FREE,BUSY
+06/14/22,06:45 PM,09:45 PM,Royals at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/14/22,06/15/22,09:45 PM,12:45 AM,FALSE,TRUE,06/14/22,05:45 PM,08:45 PM,FREE,BUSY
+06/15/22,12:45 PM,03:45 PM,Royals at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/15/22,06/15/22,03:45 PM,06:45 PM,FALSE,TRUE,06/15/22,11:45 AM,02:45 PM,FREE,BUSY
+06/24/22,07:15 PM,10:15 PM,Reds at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/24/22,06/25/22,10:15 PM,01:15 AM,FALSE,TRUE,06/24/22,06:15 PM,09:15 PM,FREE,BUSY
+06/25/22,04:15 PM,07:15 PM,Reds at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/25/22,06/25/22,07:15 PM,10:15 PM,FALSE,TRUE,06/25/22,03:15 PM,06:15 PM,FREE,BUSY
+06/26/22,01:05 PM,04:05 PM,Reds at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",06/26/22,06/26/22,04:05 PM,07:05 PM,FALSE,TRUE,06/26/22,12:05 PM,03:05 PM,FREE,BUSY
+06/28/22,06:45 PM,09:45 PM,Tigers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",06/28/22,06/29/22,09:45 PM,12:45 AM,FALSE,TRUE,06/28/22,05:45 PM,08:45 PM,FREE,BUSY
+06/29/22,12:45 PM,03:45 PM,Tigers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",06/29/22,06/29/22,03:45 PM,06:45 PM,FALSE,TRUE,06/29/22,11:45 AM,02:45 PM,FREE,BUSY
+07/01/22,07:15 PM,10:15 PM,White Sox at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",07/01/22,07/02/22,10:15 PM,01:15 AM,FALSE,TRUE,07/01/22,06:15 PM,09:15 PM,FREE,BUSY
+07/02/22,01:05 PM,04:05 PM,White Sox at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",07/02/22,07/02/22,04:05 PM,07:05 PM,FALSE,TRUE,07/02/22,12:05 PM,03:05 PM,FREE,BUSY
+07/03/22,01:05 PM,04:05 PM,White Sox at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",07/03/22,07/03/22,04:05 PM,07:05 PM,FALSE,TRUE,07/03/22,12:05 PM,03:05 PM,FREE,BUSY
+07/11/22,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",07/11/22,07/12/22,09:45 PM,12:45 AM,FALSE,TRUE,07/11/22,05:45 PM,08:45 PM,FREE,BUSY
+07/12/22,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",07/12/22,07/13/22,09:45 PM,12:45 AM,FALSE,TRUE,07/12/22,05:45 PM,08:45 PM,FREE,BUSY
+07/13/22,12:45 PM,03:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",07/13/22,07/13/22,03:45 PM,06:45 PM,FALSE,TRUE,07/13/22,11:45 AM,02:45 PM,FREE,BUSY
+07/14/22,06:45 PM,09:45 PM,Brewers at Giants,Oracle Park - San Francisco,"",07/14/22,07/15/22,09:45 PM,12:45 AM,FALSE,TRUE,07/14/22,05:45 PM,08:45 PM,FREE,BUSY
+07/15/22,07:15 PM,10:15 PM,Brewers at Giants,Oracle Park - San Francisco,"",07/15/22,07/16/22,10:15 PM,01:15 AM,FALSE,TRUE,07/15/22,06:15 PM,09:15 PM,FREE,BUSY
+07/16/22,04:15 PM,07:15 PM,Brewers at Giants,Oracle Park - San Francisco,"",07/16/22,07/16/22,07:15 PM,10:15 PM,FALSE,TRUE,07/16/22,03:15 PM,06:15 PM,FREE,BUSY
+07/17/22,01:05 PM,04:05 PM,Brewers at Giants,Oracle Park - San Francisco,"",07/17/22,07/17/22,04:05 PM,07:05 PM,FALSE,TRUE,07/17/22,12:05 PM,03:05 PM,FREE,BUSY
+07/28/22,06:45 PM,09:45 PM,Cubs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",07/28/22,07/29/22,09:45 PM,12:45 AM,FALSE,TRUE,07/28/22,05:45 PM,08:45 PM,FREE,BUSY
+07/29/22,07:15 PM,10:15 PM,Cubs at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",07/29/22,07/30/22,10:15 PM,01:15 AM,FALSE,TRUE,07/29/22,06:15 PM,09:15 PM,FREE,BUSY
+07/30/22,06:05 PM,09:05 PM,Cubs at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",07/30/22,07/31/22,09:05 PM,12:05 AM,FALSE,TRUE,07/30/22,05:05 PM,08:05 PM,FREE,BUSY
+07/31/22,01:05 PM,04:05 PM,Cubs at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",07/31/22,07/31/22,04:05 PM,07:05 PM,FALSE,TRUE,07/31/22,12:05 PM,03:05 PM,FREE,BUSY
+08/01/22,06:45 PM,09:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",08/01/22,08/02/22,09:45 PM,12:45 AM,FALSE,TRUE,08/01/22,05:45 PM,08:45 PM,FREE,BUSY
+08/02/22,06:45 PM,09:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",08/02/22,08/03/22,09:45 PM,12:45 AM,FALSE,TRUE,08/02/22,05:45 PM,08:45 PM,FREE,BUSY
+08/03/22,06:45 PM,09:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",08/03/22,08/04/22,09:45 PM,12:45 AM,FALSE,TRUE,08/03/22,05:45 PM,08:45 PM,FREE,BUSY
+08/04/22,12:45 PM,03:45 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",08/04/22,08/04/22,03:45 PM,06:45 PM,FALSE,TRUE,08/04/22,11:45 AM,02:45 PM,FREE,BUSY
+08/12/22,07:15 PM,10:15 PM,Pirates at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",08/12/22,08/13/22,10:15 PM,01:15 AM,FALSE,TRUE,08/12/22,06:15 PM,09:15 PM,FREE,BUSY
+08/13/22,06:05 PM,09:05 PM,Pirates at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",08/13/22,08/14/22,09:05 PM,12:05 AM,FALSE,TRUE,08/13/22,05:05 PM,08:05 PM,FREE,BUSY
+08/14/22,01:05 PM,04:05 PM,Pirates at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",08/14/22,08/14/22,04:05 PM,07:05 PM,FALSE,TRUE,08/14/22,12:05 PM,03:05 PM,FREE,BUSY
+08/15/22,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",08/15/22,08/16/22,09:45 PM,12:45 AM,FALSE,TRUE,08/15/22,05:45 PM,08:45 PM,FREE,BUSY
+08/16/22,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",08/16/22,08/17/22,09:45 PM,12:45 AM,FALSE,TRUE,08/16/22,05:45 PM,08:45 PM,FREE,BUSY
+08/17/22,06:45 PM,09:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",08/17/22,08/18/22,09:45 PM,12:45 AM,FALSE,TRUE,08/17/22,05:45 PM,08:45 PM,FREE,BUSY
+08/18/22,12:45 PM,03:45 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",08/18/22,08/18/22,03:45 PM,06:45 PM,FALSE,TRUE,08/18/22,11:45 AM,02:45 PM,FREE,BUSY
+08/29/22,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",08/29/22,08/30/22,09:45 PM,12:45 AM,FALSE,TRUE,08/29/22,05:45 PM,08:45 PM,FREE,BUSY
+08/30/22,06:45 PM,09:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",08/30/22,08/31/22,09:45 PM,12:45 AM,FALSE,TRUE,08/30/22,05:45 PM,08:45 PM,FREE,BUSY
+08/31/22,12:45 PM,03:45 PM,Padres at Giants,Oracle Park - San Francisco,"Local Radio: 1510 AM - KSFN",08/31/22,08/31/22,03:45 PM,06:45 PM,FALSE,TRUE,08/31/22,11:45 AM,02:45 PM,FREE,BUSY
+09/02/22,07:15 PM,10:15 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",09/02/22,09/03/22,10:15 PM,01:15 AM,FALSE,TRUE,09/02/22,06:15 PM,09:15 PM,FREE,BUSY
+09/03/22,01:05 PM,04:05 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",09/03/22,09/03/22,04:05 PM,07:05 PM,FALSE,TRUE,09/03/22,12:05 PM,03:05 PM,FREE,BUSY
+09/04/22,01:05 PM,04:05 PM,Phillies at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",09/04/22,09/04/22,04:05 PM,07:05 PM,FALSE,TRUE,09/04/22,12:05 PM,03:05 PM,FREE,BUSY
+09/12/22,06:45 PM,09:45 PM,Braves at Giants,Oracle Park - San Francisco,"",09/12/22,09/13/22,09:45 PM,12:45 AM,FALSE,TRUE,09/12/22,05:45 PM,08:45 PM,FREE,BUSY
+09/13/22,06:45 PM,09:45 PM,Braves at Giants,Oracle Park - San Francisco,"",09/13/22,09/14/22,09:45 PM,12:45 AM,FALSE,TRUE,09/13/22,05:45 PM,08:45 PM,FREE,BUSY
+09/14/22,12:45 PM,03:45 PM,Braves at Giants,Oracle Park - San Francisco,"",09/14/22,09/14/22,03:45 PM,06:45 PM,FALSE,TRUE,09/14/22,11:45 AM,02:45 PM,FREE,BUSY
+09/16/22,07:15 PM,10:15 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680- 1510 AM - KSFN",09/16/22,09/17/22,10:15 PM,01:15 AM,FALSE,TRUE,09/16/22,06:15 PM,09:15 PM,FREE,BUSY
+09/17/22,06:05 PM,09:05 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",09/17/22,09/18/22,09:05 PM,12:05 AM,FALSE,TRUE,09/17/22,05:05 PM,08:05 PM,FREE,BUSY
+09/18/22,01:05 PM,04:05 PM,Dodgers at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680- 1510 AM - KSFN",09/18/22,09/18/22,04:05 PM,07:05 PM,FALSE,TRUE,09/18/22,12:05 PM,03:05 PM,FREE,BUSY
+09/27/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",09/27/22,09/28/22,09:45 PM,12:45 AM,FALSE,TRUE,09/27/22,05:45 PM,08:45 PM,FREE,BUSY
+09/28/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",09/28/22,09/29/22,09:45 PM,12:45 AM,FALSE,TRUE,09/28/22,05:45 PM,08:45 PM,FREE,BUSY
+09/29/22,06:45 PM,09:45 PM,Rockies at Giants,Oracle Park - San Francisco,"Local Radio: KNBR 680",09/29/22,09/30/22,09:45 PM,12:45 AM,FALSE,TRUE,09/29/22,05:45 PM,08:45 PM,FREE,BUSY
+09/30/22,07:15 PM,10:15 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",09/30/22,10/01/22,10:15 PM,01:15 AM,FALSE,TRUE,09/30/22,06:15 PM,09:15 PM,FREE,BUSY
+10/01/22,01:05 PM,04:05 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",10/01/22,10/01/22,04:05 PM,07:05 PM,FALSE,TRUE,10/01/22,12:05 PM,03:05 PM,FREE,BUSY
+10/02/22,01:05 PM,04:05 PM,D-backs at Giants,Oracle Park - San Francisco,"Local TV: NBCS BA ----- Local Radio: KNBR 680",10/02/22,10/02/22,04:05 PM,07:05 PM,FALSE,TRUE,10/02/22,12:05 PM,03:05 PM,FREE,BUSY
 '''
 
 SENDER = sys.argv[1]
